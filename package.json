@@ -1,0 +1,36 @@
+{
+    "name": "create",
+    "type": "module",
+    "version": "0.1.0",
+    "description": "npm init a new repo",
+    "main": "dist/index.js",
+    "author": "Playmore",
+    "homepage": "https://github.com/playmoredevelop/create#readme",
+    "license": "Apache-2.0",
+    "bin": {
+        "create": "dist/index.js"
+    },
+    "scripts": {
+        "start": "node ./dist/index.js",
+        "watch": "tsc -w"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/playmoredevelop/create.git"
+    },
+    "keywords": [
+        "npm",
+        "init",
+        "repository"
+    ],
+    "bugs": {
+        "url": "https://github.com/playmoredevelop/create/issues"
+    },
+    "dependencies": {
+        "enquirer": "^2.3.6"
+    },
+    "devDependencies": {
+        "@types/node": "^18.11.9",
+        "typescript": "^4.8.4"
+    }
+}

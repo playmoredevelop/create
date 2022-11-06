@@ -1,0 +1,33 @@
+{
+    "compilerOptions": {
+        "target": "es2021",
+        "module": "es6",
+        "lib": ["es2021"],
+        "moduleResolution": "node",
+        "outDir": "./dist/",
+        "esModuleInterop": true,
+        "experimentalDecorators": false,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "resolveJsonModule": true,
+        "sourceMap": true,
+        "removeComments": true,
+        "isolatedModules": true,
+        "listFiles": false,
+        "noEmit": false,
+        "noImplicitAny": false,
+        "allowJs": true,
+        "skipLibCheck": true,
+        "strictNullChecks": false
+    },
+    "ts-node": {
+        "esm": true
+    },
+    "include": [
+        "src/**/*",
+        "src/*.json"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}
