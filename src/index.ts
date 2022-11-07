@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import { spawn } from 'child_process'
-import { existsSync, mkdirSync } from 'fs'
 
+import fs from 'fs-extra'
 import enq from 'enquirer'
 import path from 'path'
 
@@ -24,9 +24,9 @@ async function child(command: Array<string>, ondata: () => void = console.log): 
 
     let setup_confirmed = false
 
-    const branch: { lang: string } = await enq.prompt({
+    const struct: { type: string } = await enq.prompt({
         type: 'select',
-        name: 'lang',
+        name: 'type',
         message: 'Choose the language used during development:',
         choices: [
             { name: 'typescript', message: 'Typescript', hint: 'recomended' },
@@ -34,6 +34,18 @@ async function child(command: Array<string>, ondata: () => void = console.log): 
             { name: 'haxe', message: 'Haxe', disabled: true },
         ],
     })
+
+    const destDir = process.argv.length >= 3 ? path.resolve(process.argv[2]) : '.'
+
+    !fs.existsSync(destDir) && fs.mkdirSync(destDir)
+
+    // copy the basic structure to the destination folder
+    fs.copy(`./structure/${struct.type}`, destDir, { recursive: true, overwrite: true })
+    
+    // copy .gitignore from root to dest
+    fs.copyFile(`./.gitignore`, destDir + '/.gitignore')
+    // fs.copyFile(`./LICENSE`, destDir)
+    // exec npm init
 
     do {
 
@@ -58,13 +70,14 @@ async function child(command: Array<string>, ondata: () => void = console.log): 
             })
 
             setup_confirmed = confirm.setup_confirmed
-            
-        } else (setup_confirmed = true)
+
+        } else setup_confirmed = true
 
     } while (!setup_confirmed)
 
+    // apply struct extends
+    // exec npm i -SD
 
-    console.log(branch)
 
 })()
 
