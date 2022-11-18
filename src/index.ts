@@ -1,50 +1,64 @@
 #!/usr/bin/env node
 
-import { spawn } from 'child_process'
-
 import fs from 'fs-extra'
 import enq from 'enquirer'
 import path from 'path'
+import MicroserviceCommand from './commands/microservice'
 
-/** @todo retry */
-async function child(command: Array<string>, ondata: () => void = console.log): Promise<void> {
-    return new Promise((rs, rj) => {
-        const spawner = spawn(command.shift(), command)
-        try {
-            spawner.stdout.on('data', ondata)
-            spawner.stderr.on('data', console.error)
-            spawner.on('close', rs)
-        } catch {
-            spawner.kill() && rj()
-        }
-    })
-}
+const commands = [
+    new MicroserviceCommand()
+];
 
 (async () => {
 
-    let setup_confirmed = false
+    const state = {
+        confirmed_no_components: false,
+        destination_dir: process.argv.length >= 3 ? path.resolve(process.argv[2]) : '.'
+    }
 
-    const struct: { type: string } = await enq.prompt({
+    const command: { selected: string } = await enq.prompt({
         type: 'select',
         name: 'type',
-        message: 'Choose the language used during development:',
+        message: 'Select the project structure to install:',
+        choices: commands,
+        // [
+        //     {  },
+        //     { name: 'multiplier', message: 'Multiplier server ', hint: '[backend] (express, colyseus, chai)' },
+        //     { name: 'webgl-pixi', message: 'WEBGL pixi.js', hint: '[frontend] (pixi, canvas)' },
+        //     { name: 'cli', message: 'CLI', hint: '(cli application)', disabled: true },
+        // ],
+        initial: 0
+    })
+
+    const lang: { selected: string } = await enq.prompt({
+        type: 'select',
+        name: 'name',
+        message: 'Choose a language for this project:',
         choices: [
-            { name: 'typescript', message: 'Typescript', hint: 'recomended' },
-            { name: 'javascript', message: 'Javascript' },
+            { name: 'typescript', message: 'TypeScript', hint: '(recomended)' },
+            { name: 'javascript', message: 'JavaScript' },
             { name: 'haxe', message: 'Haxe', disabled: true },
+            { name: 'nativescript', message: 'NativeScript', disabled: true },
         ],
     })
 
-    const destDir = process.argv.length >= 3 ? path.resolve(process.argv[2]) : '.'
+    !fs.existsSync(state.destination_dir) && fs.mkdirSync(state.destination_dir)
 
-    !fs.existsSync(destDir) && fs.mkdirSync(destDir)
+    for (const c of commands) if (c.name === command.selected) {
+
+        // await c.setup(lang.selected)
+        await c.execute()
+
+        break
+    }
 
     // copy the basic structure to the destination folder
-    fs.copy(`./structure/${struct.type}`, destDir, { recursive: true, overwrite: true })
+    fs.copy(`./structure`, state.destination_dir, { overwrite: true })
+    // license
+    fs.copyFile(`./LICENSE`, state.destination_dir)
+
     
-    // copy .gitignore from root to dest
-    fs.copyFile(`./.gitignore`, destDir + '/.gitignore')
-    // fs.copyFile(`./LICENSE`, destDir)
+
     // exec npm init
 
     do {
@@ -63,17 +77,17 @@ async function child(command: Array<string>, ondata: () => void = console.log): 
         // is project without components, clarify whether it is really without settings
         if (!setup.comp.length) {
 
-            const confirm: { setup_confirmed: boolean } = await enq.prompt({
+            const no_components: { confirmed: boolean } = await enq.prompt({
                 type: 'confirm',
-                name: 'setup_confirmed',
+                name: 'confirmed',
                 message: 'No components selected. Create an empty project?'
             })
 
-            setup_confirmed = confirm.setup_confirmed
+            state.confirmed_no_components = no_components.confirmed
 
-        } else setup_confirmed = true
+        } else state.confirmed_no_components = true
 
-    } while (!setup_confirmed)
+    } while (!state.confirmed_no_components)
 
     // apply struct extends
     // exec npm i -SD
