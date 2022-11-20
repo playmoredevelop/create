@@ -1,7 +1,7 @@
-{
-    "microservice": {
-        "javascript": {
-            "packages": [
+export default {
+    microservice: {
+        javascript: {
+            packages: [
                 "dotenv",
                 "express",
                 "mongoose",
@@ -9,8 +9,8 @@
                 "pino"
             ]
         },
-        "typescript": {
-            "packages": [
+        typescript: {
+            packages: [
                 "dotenv",
                 "express",
                 "mongoose",
@@ -18,7 +18,7 @@
                 "pino",
                 "typescript"
             ],
-            "devpackages": [
+            devpackages: [
                 "eslint",
                 "@types/dotenv",
                 "@types/express",

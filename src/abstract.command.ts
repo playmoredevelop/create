@@ -37,6 +37,7 @@ export abstract class AbstractCommand implements IChoice {
         // copy the basic structure to the destination folder
         fs.copy(`./sources`, options.dir, {
             overwrite: true,
+            recursive: false,
             filter: path => paths.includes(path)
         })
         // license

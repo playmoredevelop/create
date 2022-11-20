@@ -2,7 +2,6 @@
     "compilerOptions": {
         "target": "es2021",
         "module": "es6",
-        "lib": ["es2021"],
         "moduleResolution": "node",
         "outDir": "./dist/",
         "esModuleInterop": true,
@@ -25,7 +24,7 @@
     },
     "include": [
         "src/**/*",
-        "src/*.json"
+        "src/**/*.json"
     ],
     "exclude": [
         "node_modules"
