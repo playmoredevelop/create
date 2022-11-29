@@ -1,81 +1,59 @@
 #!/usr/bin/env node
 
+import * as settings from './settings'
 import fs from 'fs-extra'
-import enq from 'enquirer'
 import path from 'path'
 
-import { IExecuteOptions } from './abstract.command';
-import MicroserviceCommand from './commands/microservice'
+import { Command } from './command'
+import { Facade } from './facade'
+import { ICommandOptions } from './declarations'
 
 (async () => {
 
-    const commands = [
-        new MicroserviceCommand()
-    ]
+    // all commands list
+    const commands: Map<string, Command> = new Map
+    // commands hash map (uniq lines)
+    const hm_commands: Map<string, Command> = new Map
 
-    const options: IExecuteOptions = {
-        dir: path.resolve(process.argv[2] ?? '.'),
-        no_components: false,
-        command: await enq.prompt({
-            type: 'select',
-            name: 'type',
-            message: 'Select the project structure to install:',
-            choices: commands,
-            initial: 0
-        }),
-        language: await enq.prompt({
-            type: 'select',
-            name: 'name',
-            message: 'Choose a language for this project:',
-            choices: [
-                { name: 'typescript', message: 'TypeScript', hint: '(recomended)' },
-                { name: 'javascript', message: 'JavaScript' },
-                { name: 'haxe', message: 'Haxe', disabled: true },
-                { name: 'nativescript', message: 'NativeScript', disabled: true },
-            ],
-        })
+    /** @todo benchmarks */
+    for await (const folder of await fs.opendir(settings.SOURCES_PATH)) {
+
+        const configPath = path.resolve(settings.SOURCES_PATH, folder.name, 'package.json')
+
+        if (await fs.pathExists(configPath)) {
+
+            const config: { [settings.OPTIONS_KEY]: ICommandOptions } = await fs.readJson(configPath, { throws: false })
+
+            if (settings.OPTIONS_KEY in config) {
+
+                const command = new Command(config[settings.OPTIONS_KEY])
+                const hm_key = [command.name, command.value, command.hint].join('_')
+
+                commands.set(`${command.language.name}-${command.name}`, command)
+                hm_commands.has(hm_key) ? null : hm_commands.set(hm_key, command)
+            }
+        }
     }
 
-    !fs.existsSync(options.dir) && fs.mkdirSync(options.dir)
+    !fs.existsSync(settings.DESTINATION_PATH) && fs.mkdirSync(settings.DESTINATION_PATH)
 
-    for (const c of commands) if (c.name === options.command.selected) {
+    const command = await Facade.select(
+        'Select the project structure to install:',
+        Array.from(hm_commands.values())
+    )
 
-        await c.execute(options)
+    const language = await Facade.select(
+        'Choose a language for this project:',
+        [...commands.values()].filter(c => c.name === command.selected).map(c => c.language)
+    )
 
-        break
-    }
+    /** 
+     * @todo
+     * - запросить правки списка зависимостей
+     * - вывести подробный список со всеми зависимостями и дать возможность часть из них отключить
+     */
 
-    do {
-
-        const setup: { comp: Array<string> } = await enq.prompt({
-            type: 'multiselect',
-            name: 'comp',
-            message: 'Choose the project components:',
-            choices: [
-                { name: 'node', message: 'Node', hint: 'пустой проект без настроек' },
-                { name: 'canvas', message: 'Canvas', hint: 'пустой проект без настроек' },
-                { name: 'cli', message: 'CLI', hint: 'пустой проект без настроек' },
-            ],
-        })
-
-        // is project without components, clarify whether it is really without settings
-        if (!setup.comp.length) {
-
-            const no_components: { confirmed: boolean } = await enq.prompt({
-                type: 'confirm',
-                name: 'confirmed',
-                message: 'No components selected. Create an empty project?'
-            })
-
-            options.no_components = no_components.confirmed
-
-        } else options.no_components = true
-
-    } while (!options.no_components)
-
-    // apply struct extends
-    // exec npm i -SD
-
+    commands.get(`${language.selected}-${command.selected}`).execute()
 
 })()
 
