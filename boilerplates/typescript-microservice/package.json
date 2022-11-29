@@ -1,0 +1,49 @@
+{
+    "type": "module",
+    "version": "0.1.0",
+    "description": "",
+    "main": "dist/index.js",
+    "author": "Playmore",
+    "homepage": "https://github.com/playmoredevelop/create#readme",
+    "license": "Apache-2.0",
+    "scripts": {},
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/playmoredevelop/create.git"
+    },
+    "bugs": {
+        "url": "https://github.com/playmoredevelop/create/issues"
+    },
+    "dependencies": {},
+    "devDependencies": {},
+    "@playmore": {
+        "name": "microservice",
+        "message": "Microservice",
+        "hint": "[backend] (express, mongoose)",
+        "value": "MicroserviceCommand",
+        "disabled": false,
+        "folders": [
+            "src"
+        ],
+        "language": {
+            "name": "typescript",
+            "message": "TypeScript",
+            "hint": "(recomended)",
+            "dependencies": [
+                "dotenv",
+                "express",
+                "mongoose",
+                "helmet",
+                "pino",
+                "typescript"
+            ],
+            "devDependencies": [
+                "eslint",
+                "@types/dotenv",
+                "@types/express",
+                "@types/mongoose",
+                "@types/node"
+            ]
+        }
+    }
+}

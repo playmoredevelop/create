@@ -21,10 +21,10 @@
         "strictNullChecks": false
     },
     "include": [
-        "src/**/*",
-        "src/*.json"
+        "./src/**/*",
+        "./src/*.json"
     ],
     "exclude": [
-        "node_modules"
+        "./node_modules"
     ]
 }
