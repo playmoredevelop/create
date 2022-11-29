@@ -1,6 +1,5 @@
 {
     "name": "create",
-    "type": "module",
     "version": "0.1.0",
     "description": "npm init a new repo",
     "main": "dist/index.js",
@@ -11,7 +10,8 @@
         "create": "dist/index.js"
     },
     "scripts": {
-        "start": "node --experimental-specifier-resolution=node ./dist/index.js ./test",
+        "start": "node ./dist/index.js ./test",
+        "start-es6": "node --experimental-specifier-resolution=node ./dist/index.js ./test",
         "watch": "tsc -w"
     },
     "repository": {
@@ -36,6 +36,13 @@
         "@types/fs-extra": "^9.0.13",
         "@types/node": "^18.11.9",
         "@types/pino": "^7.0.5",
-        "typescript": "^4.8.4"
+        "typescript": "^4.9.3"
+    },
+    "@playmore": {
+        "name": "boilerplate-name",
+        "message": "Boilerplate description",
+        "hint": "command hint",
+        "value": "command value",
+        "folders": ["create", "folders", "in", "root"]
     }
 }
