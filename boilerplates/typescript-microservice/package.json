@@ -14,8 +14,6 @@
     "bugs": {
         "url": "https://github.com/playmoredevelop/create/issues"
     },
-    "dependencies": {},
-    "devDependencies": {},
     "@playmore": {
         "name": "microservice",
         "message": "Microservice",
@@ -30,7 +28,6 @@
             "message": "TypeScript",
             "hint": "(recomended)",
             "dependencies": [
-                "dotenv",
                 "express",
                 "mongoose",
                 "helmet",
@@ -39,11 +36,14 @@
             ],
             "devDependencies": [
                 "eslint",
-                "@types/dotenv",
                 "@types/express",
-                "@types/mongoose",
                 "@types/node"
             ]
         }
-    }
+    },
+    "overrides": {
+        "dotenv": "latest"
+    },
+    "dependencies": {},
+    "devDependencies": {}
 }

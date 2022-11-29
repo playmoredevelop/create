@@ -16,14 +16,12 @@ export class Command implements IChoice {
     readonly from: string
 
     constructor(options: ICommandOptions) {
+        /** @todo filter props */
         Object.assign(this, options)
         this.folder = `${this.language.name}-${this.name}`
         this.from = path.resolve(settings.SOURCES_PATH, this.folder)
     }
 
-    // налету добавляем зависимости если выбран язык кроме js
-    // копируем файлы в src на базе языка
-    // устанавливаем все пакеты
     public async execute(): Promise<boolean> {
 
         // copy the basic structure to the destination folder
@@ -43,17 +41,23 @@ export class Command implements IChoice {
          * - старт проекта в dev режиме
          */
 
+        const dependencies = !this.language.dependencies ? [] : this.language.dependencies.map(v => v + '@latest')
+        const devDependencies = !this.language.devDependencies ? [] : this.language.devDependencies.map(v => v + '@latest')
+
+        await this.run(['npm', 'i', '-S', '--prefix', settings.DESTINATION_PATH, ...dependencies])
+        await this.run(['npm', 'i', '-D', '--prefix', settings.DESTINATION_PATH, ...devDependencies])
+
         return true
     }
 
-    protected async run(command: Array<string>, ondata: () => void = console.log): Promise<void> {
+    protected async run(command: Array<string>, ondata?: (data: Buffer) => void): Promise<void> {
 
         /** @todo retry */
         return new Promise((rs, rj) => {
             const spawner = spawn(command.shift(), command)
             try {
-                spawner.stdout.on('data', ondata)
-                spawner.stderr.on('data', console.error)
+                spawner.stdout.on('data', ondata ?? ((data: Buffer) => console.log(data.toString())))
+                spawner.stderr.on('data', (data: Buffer) => console.error(data.toString()))
                 spawner.on('close', rs)
             } catch {
                 spawner.kill() && rj()
